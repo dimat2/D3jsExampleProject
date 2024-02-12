@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import d3Tip from "d3-tip"
 
 @Component({
   selector: 'app-engagement',
@@ -9,188 +8,103 @@ import d3Tip from "d3-tip"
 })
 export class EngagementComponent implements OnInit {
   ngOnInit(): void {
-    this.grafikon();
+    this.graphicon();
   }
 
-  private async grafikon(): Promise<void> {
-    var container = d3.select('figure#engagement');
+  private async graphicon(): Promise<void> {   
+  
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 760 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
-    var margin = {top: 10, right: 0, bottom: 100, left: 40};
-    var width = 750 - margin.left - margin.right;
-    var height = 480 - margin.top - margin.bottom;
-    
-    var chart = container.append('svg')
-      .attr('width', 750)
-      .attr('height', 480)
-        .append('g')
-            .classed('chart', true)
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-    
-    chart.append('g')
-        .classed('x axis', true)
-        .attr('transform', 'translate(' + '0' + ',' + height + ')');
-    
-    chart.append('g')
-        .classed('y axis', true)
-        .attr('transform', 'translate(0,0)');
+    // append the svg object to the body of the page
+    var svg = d3.select("figure#container")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
 
-    var dataSeries = chart.append('g')
-        .classed('data-series', true);
-    
-    
-    // axes
-    var x = d3.scaleBand()
-        .range([0, width])
-        .padding(.02);
-    var xAxis = d3.axisBottom(x);
-    
-    var y = d3.scaleLinear()
-        .range([height, 0]);
-    var yAxis = d3.axisLeft(y);
-    
-    container.select('svg')
-        .append("rect")
-            .classed("drag-and-zoom-area", true)
-            .attr("width", width)
-            .attr("height", height)
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .style("fill", "none")
-            .style("cursor", "move")
-            .style("pointer-events", "all");     
-          
-  container.select('.drag-and-zoom-area')
-            .call(d3.drag()
-                .on("start", handleDragStarted)
-                .on("drag", handleDragging)
-            );
+    //Read the data
+    const data = await d3.csv("assets/1-3_diagram.csv", d3.autoType);
 
-// zoom on wheel motion 
-container.select('.drag-and-zoom-area')
-    .on("wheel", handleWheel);
+    const parseTime = d3.timeParse("%d-%b-%Y");
 
-    // get data here
-    /*var n = 400;
-    var maxY = 2000;
-    var data = d3.range(n)
-        .map(function() {
-            return {
-                key: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10),
-                value: Math.floor(d3.randomUniform(1,maxY)())
-            };
-        });*/
-    const data = await d3.csv("assets/02_engagement.csv", d3.autoType);
-
-    var viewport = {
-        center: data.length / 2,
-        size: data.length
-    };
-    
-    drawChart({
-        viewport: viewport
+    data.forEach((d:any) => {
+        d.Date = parseTime(d.Date);
+        d.Users = +d.Users;
     });
-    
-    
-    function drawChart(params) {
-    
-        var begin = Math.max(0, params.viewport.center - params.viewport.size / 2);
-        var end = Math.min(data.length, begin + params.viewport.size);
-        var slice = data.slice(begin, end);
-    
-        x.domain(slice.map(function(d:any) {
-            return d.NthDay;
-        }));
-        chart.select('.x.axis')
-            .call(<any>xAxis)
-                .selectAll("text")
-                    .classed("x-axis-label", true)
-                    .style("text-anchor", "end")
-                    .attr("dx", -8)
-                    .attr("fill", "gray")
-                    .attr("dy", "-.5em")
-                    .attr("transform", "translate(0,0) rotate(-90)");
-    
-        y.domain([0, d3.max(slice, function(d:any) {
-            return d.Ertek;
-        })]);
-        chart.select('.y.axis').call(<any>yAxis);
-    
-    
-        // draw data series
-        dataSeries.selectAll('.bar')
-            .data(slice)
-            .enter()
-                .append('rect')
-                .classed('bar', true);
-    
-        dataSeries.selectAll('.bar')
-            .attr('x', function(d:any) {
-                return x(d.NthDay);
-            })
-            .attr('y', function(d:any) {
-                return y(d.Ertek);
-            })
-            .attr('width', function(d:any) {
-                return x.bandwidth();
-            })
-            .attr('height', function(d:any) {
-                return height - y(d.Ertek);
-            })
-            .style('fill', 'steelblue');
-    
-        dataSeries.selectAll('.bar')
-            .data(slice)
-            .exit()
-            .remove();
-    }
 
-        // handle wheel inputs for zoom
-    function handleWheel(event) {
+    // List of groups (here I have one group per column)
+    const allGroup = new Set(data.map((d:any) => d.Group));
+
+    // add the options to the button
+    d3.select("#selectButton")
+      .selectAll('option')
+          .data(allGroup)
+      .enter()
+        .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; }); // corresponding value returned by the button
+
+    // A color scale: one color for each group
+    const myColor = d3.scaleOrdinal()
+      .domain(allGroup)
+      .range(d3.schemeSet2);
+
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime()
+      .domain(d3.extent(data, function(d:any) { return d.Date; }))
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %d")));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d:any) { return +d.Users; })])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Initialize line with first group of the list
+    const line = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d:any){return d.Group=="Users"}))
+        .attr("d", <any>d3.line()
+          .x((d:any) => x(d.Date))
+          .y((d:any) => y(+d.Users))
+        )
+        .attr("stroke", (d) => <any>myColor("valueA"))
+        .style("stroke-width", 4)
+        .style("fill", "none");
+
+        function update(selectedGroup) {
+
+            // Create new data with the selection?
+            const dataFilter = data.filter(function(d:any){return d.Group==selectedGroup})
       
-      var zoomFactor = 1.25;
-
-      if (event.deltaY > 0) {
-          viewport.size = Math.min(
-              data.length,
-              viewport.size * zoomFactor
-          );
-      } else if (event.deltaY < 0) {
-          viewport.size = Math.round(
-              Math.max(
-                  1,
-                  viewport.size / zoomFactor
-              ));
-      }
-
-      drawChart({
-          viewport: viewport
-      });
-
-      event.preventDefault();
-    }
-
-    var lastDragX;
-    function handleDragStarted(event) { lastDragX = event.x; }
-    
-    function handleDragging(event) {
-        var deltaPos = lastDragX - event.x;
-        lastDragX = event.x;
-    
-        if (deltaPos > 0) {
-            viewport.center = Math.min(
-                data.length - viewport.size / 2,
-                viewport.center + Math.ceil(0.05 * viewport.size)
-            );
-        } else if (deltaPos < 0) {
-            viewport.center = Math.max(
-                viewport.size / 2,
-                viewport.center - Math.ceil(0.05 * viewport.size)
-            );
-        }
-    
-        drawChart({
-            viewport: viewport
-        });
-    
-    }
+            // Give these new data to update line
+            line
+                .datum(dataFilter)
+                .transition()
+                .duration(1000)
+                .attr("d", <any>d3.line()
+                  .x(function(d:any) { return x(d.Date) })
+                  .y(function(d:any) { return y(+d.Users) })
+                )
+                .attr("stroke", function(d){ return <any>myColor(selectedGroup) })
+          }
+      
+          // When the button is changed, run the updateChart function
+          d3.select("#selectButton").on("change", function(event,d) {
+              // recover the option that has been chosen
+              const selectedOption = d3.select(this).property("value")
+              // run the updateChart function with this selected option
+              update(selectedOption)
+          })
   }
-}
+}  
