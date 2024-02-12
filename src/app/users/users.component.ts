@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from "d3";
-import d3Tip from "d3-tip"
 
 @Component({
   selector: 'app-users',
@@ -9,138 +8,103 @@ import d3Tip from "d3-tip"
 })
 export class UsersComponent implements OnInit {
   ngOnInit(): void {
-    this.grafikon();
+    this.graphicon();
   }
-
-  private async grafikon() : Promise<void> {
-    
-    const data = await d3.csv("assets/01_users.csv", d3.autoType);
-
-    const width = 928;
-    const height = width;
-    const innerRadius = 180;
-    const outerRadius = Math.min(width, height) / 2;
-
-    const arc = d3.arc()
-      .innerRadius(d => y(d[0]))
-      .outerRadius(d => y(d[1]))
-      .startAngle( (d: any) => x(d.data.NthDay))
-      .endAngle( (d: any) => x(d.data.NthDay) + x.bandwidth())
-      .padAngle(0.01)
-      .padRadius(innerRadius);
-    
-    const x = d3.scaleBand()
-      .domain(data.map((d:any) => d.NthDay))
-      .range([0, 2 * Math.PI])
-      .align(0);
-    
-    const y0 = d3.scaleLinear()
-      .domain([0, 45_000])
-      .range([innerRadius * innerRadius, outerRadius * outerRadius]);
-    
-    const y = Object.assign(d => Math.sqrt(y0(d)), y0);
   
-    const z = d3.scaleOrdinal()
-		.domain(data.columns.slice(1))
-		.range(["#98abc5", "#8a89a6"]);
-    
-        
-    const svg = d3.select("figure#users").append('svg')
-      .attr("viewBox", `${-width / 2} ${-height / 2} ${width} ${height}`)
-      .style("width", "100%")
-      .style("height", "auto")
-      .style("font", "10px sans-serif");
-    
-    const stack = d3.stack().keys(data.columns.slice(1));
-    const series = stack(<any>data);
+  private async graphicon(): Promise<void> {   
+  
+    // set the dimensions and margins of the graph
+    const margin = {top: 10, right: 30, bottom: 30, left: 60},
+      width = 760 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+  
+      // append the svg object to the body of the page
+    const svg = d3.select("figure#users")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+  
+      //Read the data
+    const data = await d3.csv("assets/1-2_users_new_users.csv", d3.autoType);
+  
+    const parseTime = d3.timeParse("%d-%b-%Y");
+  
+    data.forEach((d:any) => {
+        d.Date = parseTime(d.Date);
+        d.Users = +d.Users;
+    });
 
-    const t = ["New users","Old users"];
+    // List of groups (here I have one group per column)
+    const allGroup = new Set(data.map((d:any) => d.Group));
 
-    const tip = d3Tip().attr('class', 'd3-tip').html(function(d, t, s) {return "<div class=\"tooltip\">" + (t[1] - t[0]).toLocaleString("hu-HU") + "</div>"; });
+    // add the options to the button
+    d3.select("#selectButton")
+      .selectAll('option')
+          .data(allGroup)
+      .enter()
+        .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; }); // corresponding value returned by the button
 
-    svg.call(tip);
+    // A color scale: one color for each group
+    const myColor = d3.scaleOrdinal()
+      .domain(allGroup)
+      .range(d3.schemeSet2);
 
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime()
+      .domain(d3.extent(data, function(d:any) { return d.Date; }))
+      .range([ 0, width ]);
     svg.append("g")
-      .selectAll("g")
-      .data(series)
-      .enter().append("g")
-        .attr("fill", <any>(d => z(d.key)))
-      .selectAll("path")
-      .data(d => d)
-      .enter().append("path")
-        .attr("d", <any>arc)
-        .on('mouseover', function (d, i) {
-          d3.select(this).transition()
-               .duration(50)
-               .attr('opacity', '0.5');          //Makes the new div appear on hover:
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %d")));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d:any) { return +d.Users; })])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Initialize line with first group of the list
+    const line = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d:any){return d.Group=="Users"}))
+        .attr("d", <any>d3.line()
+          .x((d:any) => x(d.Date))
+          .y((d:any) => y(+d.Users))
+        )
+        .attr("stroke", (d) => <any>myColor("valueA"))
+        .style("stroke-width", 4)
+        .style("fill", "none");
+
+        function update(selectedGroup) {
+
+            // Create new data with the selection?
+            const dataFilter = data.filter(function(d:any){return d.Group==selectedGroup})
+      
+            // Give these new data to update line
+            line
+                .datum(dataFilter)
+                .transition()
+                .duration(1000)
+                .attr("d", <any>d3.line()
+                  .x(function(d:any) { return x(d.Date) })
+                  .y(function(d:any) { return y(+d.Users) })
+                )
+                .attr("stroke", function(d){ return <any>myColor(selectedGroup) })
+          }
+      
+          // When the button is changed, run the updateChart function
+          d3.select("#selectButton").on("change", function(event,d) {
+              // recover the option that has been chosen
+              const selectedOption = d3.select(this).property("value")
+              // run the updateChart function with this selected option
+              update(selectedOption)
           })
-        .on('mouseout', function (d, i) {
-              d3.select(this).transition()
-                  .duration(50)
-                  .attr('opacity', '1');          //Makes the new div disappear:
-        })
-        .on('mouseover', tip.show)
-        .on('mouseout', tip.hide); 
-
-    // xAxis
-    svg.append("g")
-      .attr("text-anchor", "middle")
-      .call(g => g.selectAll("g")
-        .data(data)
-        .enter().append("g")
-          .attr("transform", (d:any) => `
-            rotate(${((x(d.NthDay) + x.bandwidth() / 2) * 180 / Math.PI - 90)})
-            translate(${innerRadius},0)
-          `)
-          .call(g => g.append("line")
-              .attr("x2", -5)
-              .attr("stroke", "#000"))
-          .call(g => g.append("text")
-              .attr("transform", (d:any) => (x(d.NthDay) + x.bandwidth() / 2 + Math.PI / 2) % (2 * Math.PI) < Math.PI
-                  ? "rotate(0)translate(-18,5)"
-                  : "rotate(-180)translate(18,5)")
-              .text((d:any) => d.NthDay)));
-
-    //yAxis 
-    svg.append("g")
-        .attr("text-anchor", "middle")
-    .call(g => g.append("text")
-        .attr("y", d => -y(y.ticks(5).pop()))
-        .attr("dy", "-1em")
-        .text("Users"))
-    .call(g => g.selectAll("g")
-      .data(y.ticks(5).slice(1))
-      .enter().append("g")
-        .attr("fill", "none")
-        .call(g => g.append("circle")
-            .attr("stroke", "#000")
-            .attr("stroke-opacity", 0.5)
-            .attr("r", y))
-        .call(g => g.append("text")
-            .attr("y", d => -y(d))
-            .attr("dy", "0.35em")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 5)
-            .text(y.tickFormat(2, "s"))
-         .clone(true)
-            .attr("fill", "#000")
-            .attr("stroke", "none")))
-    
-    //legend
-    svg.append("g")
-    .selectAll("g")
-    .data(data.columns.slice(1).reverse())
-    .enter().append("g")
-      .attr("transform", (d, i) => `translate(-40,${(i - (data.columns.length - 1)/2 ) * 20})`)
-      .call(g => g.append("rect")
-          .attr("width", 18)
-          .attr("height", 18)
-          .attr("fill", <any>z)
-          )
-      .call(g => g.append("text")
-          .attr("x", 24)
-          .attr("y", 9)
-          .attr("dy", "0.35em")
-          .text((d:any) => d));
-  }
+    }
 }
