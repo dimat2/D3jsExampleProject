@@ -41,7 +41,7 @@ export class UsersComponent implements OnInit {
     const allGroup = new Set(data.map((d:any) => d.Group));
 
     // add the options to the button
-    d3.select("#selectButton")
+    d3.select("#selectButtonUsers")
       .selectAll('option')
           .data(allGroup)
       .enter()
@@ -100,7 +100,7 @@ export class UsersComponent implements OnInit {
           }
       
           // When the button is changed, run the updateChart function
-          d3.select("#selectButton").on("change", function(event,d) {
+          d3.select("#selectButtonUsers").on("change", function(event,d) {
               // recover the option that has been chosen
               const selectedOption = d3.select(this).property("value")
               // run the updateChart function with this selected option

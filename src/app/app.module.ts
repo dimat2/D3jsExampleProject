@@ -9,6 +9,9 @@ import { FormsModule } from '@angular/forms';
 import { UsersComponent } from './users/users.component';
 import { EngagementComponent } from './engagement/engagement.component';
 import { CountriesComponent } from './countries/countries.component';
+import { TrendComponent } from './trend/trend.component';
+
+import { DchgComponent } from './dchg/dchg.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +19,8 @@ import { CountriesComponent } from './countries/countries.component';
     UsersComponent,
     EngagementComponent,
     CountriesComponent,
+    TrendComponent,
+    DchgComponent,
   ],
   imports: [
     BrowserModule,
