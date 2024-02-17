@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import * as d3 from "d3";
 
 @Component({

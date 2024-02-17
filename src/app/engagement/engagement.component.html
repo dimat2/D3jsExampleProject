@@ -1,3 +1,15 @@
 <h2>(2) Average Engagement time (s) on the site</h2>
 <br />
-<figure id="engagement" class="svg-container"></figure>
+<label>
+    <input [value]="1" [(ngModel)]="dia" name="dia" type="radio" /> Simple diagram
+</label>
+<label>
+  <input [value]="0" [(ngModel)]="dia" name="dia" type="radio" /> Brush and zoom
+</label>  
+
+<div [hidden]="dia == 0">
+  <figure id="engagement" class="svg-container"></figure>
+</div>
+<div [hidden]="dia == 1">
+  <figure  id="engagement_zoom" class="svg-container"></figure>
+</div>

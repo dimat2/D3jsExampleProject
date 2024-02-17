@@ -9,6 +9,8 @@ import { ChartData } from './chartData';
 export class AppComponent {
   title = 'd3-dynamic_data';
 
+  bValue:boolean = false;
+
   chartData_2D_1: ChartData = {
     yrange: 200000,
     lineData: [

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import * as d3 from "d3";
 import d3Tip from "d3-tip"
 
@@ -7,12 +7,21 @@ import d3Tip from "d3-tip"
   templateUrl: './countries.component.html',
   styleUrls: ['./countries.component.css']
 })
-export class CountriesComponent implements OnInit {
-  ngOnInit(): void {
-    this.graphicon();
+export class CountriesComponent implements OnInit, OnChanges, OnDestroy {
+
+  constructor() {}
+  ngOnDestroy(): void {
   }
 
-  private async graphicon(): Promise<void> {   
+  ngOnChanges(changes: SimpleChanges): void {
+
+  }
+
+  ngOnInit(): void {   
+    this.graphicon_hor();
+  }
+
+  private async graphicon_hor(): Promise<void> {   
     
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},

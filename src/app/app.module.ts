@@ -12,6 +12,9 @@ import { CountriesComponent } from './countries/countries.component';
 import { TrendComponent } from './trend/trend.component';
 
 import { DchgComponent } from './dchg/dchg.component';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -25,7 +28,10 @@ import { DchgComponent } from './dchg/dchg.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    MatIconModule,
+    HttpClientModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
