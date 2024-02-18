@@ -11,6 +11,12 @@ export class DchgComponent implements OnInit {
     this.graphicon();
   }
 
+  chooseTitle: number = 1;
+
+  chooseSource: number = 1;
+
+  chooseLabel: number = 1;
+
   private async graphicon(): Promise<void> {   
     
     // set the dimensions and margins of the graph
@@ -19,8 +25,7 @@ export class DchgComponent implements OnInit {
     height = 600 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    const svg = d3.select("figure#newUsers")
-    .append("svg")
+    const svg = d3.select("svg#svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -55,7 +60,7 @@ export class DchgComponent implements OnInit {
       
       //Bars
         
-    const tooltip = d3.select("figure#newUsers").append("div").attr("class", "toolTip");
+    const tooltip = d3.select("div#toolTip");
 
     // tooltip events
     const mouseover = function(d) {

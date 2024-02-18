@@ -1,3 +1,41 @@
-<h2>(3) Where do your new users come from?</h2>
+<label>
+    <input [value]="1" [(ngModel)]="chooseTitle" name="chooseTitle" type="radio" /> With title
+</label>
 <br />
-<figure id="newUsers" class="svg-container"></figure>
+<label>
+  <input [value]="0" [(ngModel)]="chooseTitle" name="chooseTitle" type="radio" /> Without title
+</label>
+<br />
+<label>
+    <input [value]="1" [(ngModel)]="chooseLabel" name="chooseLabel" type="radio" /> With label
+</label>
+<br />
+<label>
+  <input [value]="0" [(ngModel)]="chooseLabel" name="chooseLabel" type="radio" /> Without label
+</label>
+<br />
+<label>
+    <input [value]="1" [(ngModel)]="chooseSource" name="chooseSource" type="radio" /> With source
+</label>
+<br />
+<label>
+  <input [value]="0" [(ngModel)]="chooseSource" name="chooseSource" type="radio" /> Without source
+</label>
+<br />
+<div>
+    <svg id="svg">
+        <text *ngIf="chooseTitle == 1" x=300 y="10" class="title">
+            Where do your new users come from?
+        </text>
+        <text *ngIf="chooseLabel == 1" x=400 y="550" class="label">
+            New users
+        </text>
+        <text *ngIf="chooseLabel == 1" transform ="rotate(90)" x="130" y="-700" class="label">
+            First user primary channel group (Default Channel Group)
+        </text>
+        <text *ngIf="chooseSource== 1" x=520 y="520" class="source">
+            Source: sport.hu - GA4
+        </text>
+    </svg>
+    <div id="toolTip" style="position: absolute;"></div>
+</div>

@@ -16,7 +16,7 @@ export class EngagementComponent implements OnInit {
 
   constructor(private diaService: DiagramService) {}
 
-  parseCSVANdBuildDiagram() {
+  parseCSVAndBuildDiagram() {
     this.diaService.getDiagram().subscribe(dataA => {
       const lines: string[] = dataA.split("\n");
       
@@ -242,7 +242,7 @@ export class EngagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.parseCSVANdBuildDiagram();
+    this.parseCSVAndBuildDiagram();
   }
 
 }
