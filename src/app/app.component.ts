@@ -35,4 +35,11 @@ export class AppComponent {
     link.href = "assets/sport.hu - GA4.xlsx";
     link.click();
   }
+
+  hiv() {
+    let link = document.createElement("a");
+    link.href = "https://github.com/dimat2/D3jsExampleProject";
+    link.target = "_blank";
+    link.click(); 
+  }
 }

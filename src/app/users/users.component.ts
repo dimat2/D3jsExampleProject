@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import * as d3 from "d3";
+import { DiagramService } from '../diagram.service';
 
 @Component({
   selector: 'app-users',
@@ -8,11 +9,87 @@ import * as d3 from "d3";
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
+
+  dataArray: any[] = [];
+
+  constructor(private diaService: DiagramService) {}
+
   ngOnInit(): void {
-    this.graphicon();
+    this.parseCSVAndBuildDiagram();
   }
+
+  parseCSVAndBuildDiagram() {
+    this.diaService.getDiagram().subscribe(dataA => {
+      const lines: string[] = dataA.split("\n");
+      
+      const index: number = lines.indexOf("Nth day,Users\r");
+
+      const index2: number = lines.indexOf("Nth day,New users\r");
+
+      const startDate = lines[index - 2].split(": ");
+
+      const startDateOK = startDate[1].substring(6, 8);
+
+      const endDate = lines[index - 1].split(": ");
+
+      const endDateOK = endDate[1].substring(6, 8);
+      
+      const days = parseInt(endDateOK) - parseInt(startDateOK);
+
+      const dataRows: string[] = lines.slice(index + 1, days + 1 + index + 1);  
+
+      const dataRows2: string[] = lines.slice(index2 + 1, days + 1 + index2 + 1);  
+
+      for (let i = 0; i < dataRows.length; i++) {
+        dataRows[i] = dataRows[i] + ",Users";
+      }
+
+      for (let i = 0; i < dataRows2.length; i++) {
+        dataRows2[i] = dataRows2[i] + ",New users";
+      }
+
+      const dataRows3 = dataRows.concat(dataRows2);
+
+      const propertyNames = dataRows[0].slice(0, dataRows[0].indexOf('\n')).split(',');
+
+      propertyNames[0] = "Date";
+      propertyNames[1] = "Users";
+      propertyNames[2] = "Group";
+
+      dataRows3.forEach((row) => {
   
-  private async graphicon(): Promise<void> {   
+        let values = row.split(',');
+
+        let obj: any = new Object();
+  
+        for (let index = 0; index < propertyNames.length; index++) {
+  
+          const propertyName: string = propertyNames[index];
+  
+          let val: any = values[index];
+  
+          if (val === '') {
+  
+            val = null;
+  
+          }
+  
+          obj[propertyName] = val;  
+        }
+  
+        this.dataArray.push(obj);
+
+      });
+
+      this.dataArray.forEach((d:any) => {
+        d.Date = startDate[1].substring(0, 6) + (parseInt(d.Date) + 1).toString().padStart(2, "0")
+      });
+
+      this.graphicon(this.dataArray);
+    });
+  }
+
+  private graphicon(paramData): void {    
   
     // set the dimensions and margins of the graph
     const margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -29,9 +106,9 @@ export class UsersComponent implements OnInit {
           "translate(" + margin.left + "," + margin.top + ")");
   
       //Read the data
-    const data = await d3.csv("assets/1-2_users_new_users.csv", d3.autoType);
+    const data = paramData;
   
-    const parseTime = d3.timeParse("%d-%b-%Y");
+    const parseTime = d3.timeParse("%Y%m%d");
   
     data.forEach((d:any) => {
         d.Date = parseTime(d.Date);
@@ -47,17 +124,17 @@ export class UsersComponent implements OnInit {
           .data(allGroup)
       .enter()
         .append('option')
-      .text(function (d) { return d; }) // text showed in the menu
-      .attr("value", function (d) { return d; }); // corresponding value returned by the button
+      .text(function (d:any) { return d; }) // text showed in the menu
+      .attr("value", function (d:any) { return d; }); // corresponding value returned by the button
 
     // A color scale: one color for each group
     const myColor = d3.scaleOrdinal()
-      .domain(allGroup)
+      .domain(<any>allGroup)
       .range(d3.schemeSet2);
 
     // Add X axis --> it is a date format
     const x = d3.scaleTime()
-      .domain(d3.extent(data, function(d:any) { return d.Date; }))
+      .domain(<any>d3.extent(data, function(d:any) { return d.Date; }))
       .range([ 0, width ]);
     svg.append("g")
       .attr("transform", `translate(0, ${height})`)

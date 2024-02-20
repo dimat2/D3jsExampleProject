@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from "d3";
+import { DiagramService } from '../diagram.service';
 
 @Component({
   selector: 'app-dchg',
@@ -8,16 +9,63 @@ import * as d3 from "d3";
 })
 export class DchgComponent implements OnInit {
   ngOnInit(): void {
-    this.graphicon();
+    this.parseCSVAndBuildDiagram();
   }
 
   chooseTitle: number = 1;
 
-  chooseSource: number = 1;
+  chooseSource: number = 0;
 
   chooseLabel: number = 1;
 
-  private async graphicon(): Promise<void> {   
+  dataArray: any[] = [];
+
+  constructor(private diaService: DiagramService) {}
+
+  parseCSVAndBuildDiagram() {
+    this.diaService.getDiagram().subscribe(dataA => {
+      const lines: string[] = dataA.split("\n");
+      
+      const index: number = lines.indexOf("First user primary channel group (Default Channel Group),New users\r");
+
+      const dataRows: string[] = lines.slice(index + 1, 7 + index + 1);      
+
+      const propertyNames = dataRows[0].slice(0, dataRows[0].indexOf('\n')).split(',');
+
+      propertyNames[0] = "Channel";
+      propertyNames[1] = "NewUsers";
+
+      dataRows.forEach((row) => {
+  
+        let values = row.split(',');
+  
+        let obj: any = new Object();
+  
+        for (let index = 0; index < propertyNames.length; index++) {
+  
+          const propertyName: string = propertyNames[index];
+  
+          let val: any = values[index];
+  
+          if (val === '') {
+  
+            val = null;
+  
+          }
+  
+          obj[propertyName] = val;
+  
+        }
+  
+        this.dataArray.push(obj);
+  
+      });
+
+      this.graphicon(this.dataArray);
+    });
+  }
+
+  private graphicon(paramData): void {   
     
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},
@@ -32,11 +80,11 @@ export class DchgComponent implements OnInit {
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // Parse the Data
-    d3.csv("assets/4_dchg.csv").then( function(data) {
+    const data = paramData;
 
       data.sort(function(a:any, b:any) {
         return b.NewUsers - a.NewUsers;
-      })
+      });
 
       // Add X axis
       const x = d3.scaleLinear()
@@ -102,6 +150,5 @@ export class DchgComponent implements OnInit {
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
       .on("mouseleave", mouseleave);
-  })
   }
 }

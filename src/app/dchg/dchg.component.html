@@ -1,25 +1,13 @@
 <label>
-    <input [value]="1" [(ngModel)]="chooseTitle" name="chooseTitle" type="radio" /> With title
+    <input [(ngModel)]="chooseTitle" name="chooseTitle" type="checkbox" /> Title
 </label>
-<br />
+&nbsp;
 <label>
-  <input [value]="0" [(ngModel)]="chooseTitle" name="chooseTitle" type="radio" /> Without title
+  <input [(ngModel)]="chooseLabel" name="chooseLabel" type="checkbox" /> Label
 </label>
-<br />
+&nbsp;
 <label>
-    <input [value]="1" [(ngModel)]="chooseLabel" name="chooseLabel" type="radio" /> With label
-</label>
-<br />
-<label>
-  <input [value]="0" [(ngModel)]="chooseLabel" name="chooseLabel" type="radio" /> Without label
-</label>
-<br />
-<label>
-    <input [value]="1" [(ngModel)]="chooseSource" name="chooseSource" type="radio" /> With source
-</label>
-<br />
-<label>
-  <input [value]="0" [(ngModel)]="chooseSource" name="chooseSource" type="radio" /> Without source
+    <input [(ngModel)]="chooseSource" name="chooseSource" type="checkbox" /> Source
 </label>
 <br />
 <div>
