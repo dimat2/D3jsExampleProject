@@ -12,7 +12,7 @@ import { CountriesComponent } from './countries/countries.component';
 import { TrendComponent } from './trend/trend.component';
 
 import { DchgComponent } from './dchg/dchg.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
 
