@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from "d3";
-import d3Tip from "d3-tip"
 import { DiagramService } from '../diagram.service';
 import { CountryCode } from '../data';
 
@@ -66,53 +65,64 @@ export class CountriesComponent implements OnInit {
       this.parseCSVAndBuildDiagram();
     }
 
-  parseCSVAndBuildDiagram() {
-    this.diaService.getDiagram().subscribe(dataA => {
-      const lines: string[] = dataA.split("\n");
-      
-      const index: number = lines.indexOf("Country ID,Users\r");
+    parseCSVAndBuildDiagram() {
+      this.diaService.getDiagram().subscribe({
 
-      const dataRows: string[] = lines.slice(index + 1, this.contries.length + index + 1);  
+        next : (response:any) => {
+          if(response && response.length ) {
+            const lines: string[] = response.split("\n");
+            
+            const index: number = lines.indexOf("Country ID,Users\r");
 
-      const propertyNames = dataRows[0].slice(0, dataRows[0].indexOf('\n')).split(',');
+            const dataRows: string[] = lines.slice(index + 1, this.contries.length + index + 1);  
 
-      propertyNames[0] = "Country";
-      propertyNames[1] = "Users";
+            const propertyNames = dataRows[0].slice(0, dataRows[0].indexOf('\n')).split(',');
 
-      dataRows.forEach((row) => {
-  
-        let values = row.split(',');
-  
-        for (let i = 0; i < this.contries.length; i++) {
-          if (this.contries[i].code == values[0]) {
-            values[0] = this.contries[i].country;
+            propertyNames[0] = "Country";
+            propertyNames[1] = "Users";
+
+            dataRows.forEach((row) => {
+        
+              let values = row.split(',');
+        
+              for (let i = 0; i < this.contries.length; i++) {
+                if (this.contries[i].code == values[0]) {
+                  values[0] = this.contries[i].country;
+                }
+              }
+
+              let obj: any = new Object();
+        
+              for (let index = 0; index < propertyNames.length; index++) {
+        
+                const propertyName: string = propertyNames[index];
+        
+                let val: any = values[index];
+
+                if (val === '') {
+        
+                  val = null;
+        
+                }
+
+                obj[propertyName] = val;
+                
+              }
+        
+              this.dataArray.push(obj);
+        
+            });
+            
+            this.graphicon(this.dataArray);
+            }
+          },
+          error : (error) =>{
+            this.dataArray = [];
+          },
+          complete: () => {
           }
         }
-
-        let obj: any = new Object();
-  
-        for (let index = 0; index < propertyNames.length; index++) {
-  
-          const propertyName: string = propertyNames[index];
-  
-          let val: any = values[index];
-
-          if (val === '') {
-  
-            val = null;
-  
-          }
-
-          obj[propertyName] = val;
-          
-        }
-  
-        this.dataArray.push(obj);
-  
-      });
-
-      this.graphicon(this.dataArray);
-    });
+    );
   }
 
   private graphicon(paramData): void {   

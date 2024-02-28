@@ -23,7 +23,7 @@ export class DchgComponent implements OnInit {
   constructor(private diaService: DiagramService) {}
 
   parseCSVAndBuildDiagram() {
-    this.diaService.getDiagram().subscribe(dataA => {
+    /*this.diaService.getDiagram().subscribe(dataA => {
       const lines: string[] = dataA.split("\n");
       
       const index: number = lines.indexOf("First user primary channel group (Default Channel Group),New users\r");
@@ -62,7 +62,7 @@ export class DchgComponent implements OnInit {
       });
 
       this.graphicon(this.dataArray);
-    });
+    });*/
   }
 
   private graphicon(paramData): void {   

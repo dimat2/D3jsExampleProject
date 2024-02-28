@@ -17,7 +17,7 @@ export class EngagementComponent implements OnInit {
   constructor(private diaService: DiagramService) {}
 
   parseCSVAndBuildDiagram() {
-    this.diaService.getDiagram().subscribe(dataA => {
+    /*this.diaService.getDiagram().subscribe(dataA => {
       const lines: string[] = dataA.split("\n");
       
       const index: number = lines.indexOf("Nth day,Average engagement time\r");
@@ -238,11 +238,10 @@ export class EngagementComponent implements OnInit {
         .style("stroke-width", 4)
         .style("fill", "none");
       
-    });
+    });*/
   }
 
   ngOnInit(): void {
     this.parseCSVAndBuildDiagram();
   }
-
 }

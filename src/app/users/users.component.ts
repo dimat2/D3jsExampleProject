@@ -19,7 +19,7 @@ export class UsersComponent implements OnInit {
   }
 
   parseCSVAndBuildDiagram() {
-    this.diaService.getDiagram().subscribe(dataA => {
+    /*this.diaService.getDiagram().subscribe(dataA => {
       const lines: string[] = dataA.split("\n");
       
       const index: number = lines.indexOf("Nth day,Users\r");
@@ -86,7 +86,7 @@ export class UsersComponent implements OnInit {
       });
 
       this.graphicon(this.dataArray);
-    });
+    });*/
   }
 
   private graphicon(paramData): void {    

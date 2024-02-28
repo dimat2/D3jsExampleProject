@@ -17,7 +17,7 @@ export class TrendComponent implements OnInit {
   constructor(private diaService: DiagramService) {}
 
   parseCSVAndBuildDiagram() {
-    this.diaService.getDiagram().subscribe(dataA => {
+    /*this.diaService.getDiagram().subscribe(dataA => {
     const lines: string[] = dataA.split("\n");
     
     const index: number = lines.indexOf("Nth day,30 days,7 days,1 day\r");
@@ -76,7 +76,7 @@ export class TrendComponent implements OnInit {
 
     this.graphicon(this.dataArray);
 
-   });
+   });*/
   }
 
   private graphicon(paramData) : void {
