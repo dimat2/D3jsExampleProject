@@ -57,12 +57,10 @@ describe('CountriesComponent', () => {
 
     expect(component.dataArray).toBeDefined();
 
-    component.graphicon(component.dataArray);
-
     const element = d3.select('figure#countries').select('svg').node();
     expect(element).toBeDefined();
 
-    let rectElement = d3.select('figure#countries').selectAll('rect').nodes()[0] as SVGTextElement
+    let rectElement = d3.select('figure#countries').selectAll('rect').nodes()[0] as SVGTextElement;
 
     rectElement.dispatchEvent(new MouseEvent('mousemove'));
 
