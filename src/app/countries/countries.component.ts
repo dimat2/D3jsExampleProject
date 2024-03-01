@@ -125,7 +125,7 @@ export class CountriesComponent implements OnInit {
     );
   }
 
-  graphicon(paramData): void {   
+  private graphicon(paramData): void {   
     
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},

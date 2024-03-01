@@ -42,8 +42,6 @@ describe('CountriesComponent', () => {
 
     component.parseCSVAndBuildDiagram();
 
-    expect(component.dataArray).toBeDefined();
-
     expect(component.dataArray.length).toBe(component.contries.length);
     
   }));
@@ -54,11 +52,6 @@ describe('CountriesComponent', () => {
     spyOn(service, "getDiagram").and.returnValue(of(response));
 
     component.parseCSVAndBuildDiagram();
-
-    expect(component.dataArray).toBeDefined();
-
-    const element = d3.select('figure#countries').select('svg').node();
-    expect(element).toBeDefined();
 
     let rectElement = d3.select('figure#countries').selectAll('rect').nodes()[0] as SVGTextElement;
 
